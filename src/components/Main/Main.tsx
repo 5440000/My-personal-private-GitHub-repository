@@ -1,5 +1,7 @@
+// src/components/Main/Main.tsx
 import React from 'react';
 import '../../index.css';
+import CardList from '../CardList/CardList'; // Импортируем CardList
 
 interface PokemonResult {
   name: string;
@@ -18,7 +20,7 @@ interface MainProps {
 }
 
 interface MainState {
-  data: PokemonApiResponse | null;
+  data: PokemonApiResponse | PokemonResult[] | PokemonResult | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -75,7 +77,8 @@ class Main extends React.Component<MainProps, MainState> {
         throw new Error(`Error: ${response.status} (${response.statusText})`);
       }
 
-      const jsonData: PokemonApiResponse = await response.json();
+      const jsonData: PokemonApiResponse | PokemonResult =
+        await response.json();
 
       const elapsedTime = Date.now() - startTime;
       const minLoadingDuration = 1500;
@@ -83,10 +86,13 @@ class Main extends React.Component<MainProps, MainState> {
 
       if (timeToWait > 0) {
         this.loadingTimer = setTimeout(() => {
-          this.setState({ data: jsonData, isLoading: false });
+          const dataToPass =
+            (jsonData as PokemonApiResponse).results || jsonData;
+          this.setState({ data: dataToPass, isLoading: false });
         }, timeToWait) as unknown as number;
       } else {
-        this.setState({ data: jsonData, isLoading: false });
+        const dataToPass = (jsonData as PokemonApiResponse).results || jsonData;
+        this.setState({ data: dataToPass, isLoading: false });
       }
     } catch (error: unknown) {
       let errorMessage = 'An unknown error occurred.';
@@ -127,21 +133,27 @@ class Main extends React.Component<MainProps, MainState> {
         {isLoading && (
           <p className="text-blue-600 font-medium">Loading results...</p>
         )}
-        {error && <p className="text-red-500">Error: {error}</p>}
+        {error && (
+          <p className="text-red-500 font-semibold text-center mt-4">
+            Error: {error}
+          </p>
+        )}
 
         {!isLoading && !error && data && (
-          <div>
-            <h3 className="text-lg font-medium mb-2">Fetched Data:</h3>
-            <pre className="bg-gray-200 p-2 rounded-md overflow-auto text-sm">
-              {JSON.stringify(data, null, 2)}
-            </pre>
-          </div>
+          <CardList
+            results={
+              Array.isArray(data)
+                ? data
+                : (data as PokemonApiResponse).results ||
+                  (data as PokemonResult)
+            }
+          />
         )}
 
         {!isLoading && !error && !data && (
-          <p className="text-gray-500">
-            No data fetched yet. (This may happen if the initial fetch fails or
-            if a search yields no results)
+          <p className="text-gray-500 text-center mt-4">
+            No data fetched yet. (Try searching for a Pokemon like pikachu or
+            charizard)
           </p>
         )}
       </main>
