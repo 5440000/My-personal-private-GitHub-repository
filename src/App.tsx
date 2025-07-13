@@ -1,5 +1,6 @@
 import React from 'react';
-
+import Header from './components/Header/Header';
+import Main from './components/Main/Main';
 class App extends React.Component<
   Record<string, never>,
   Record<string, never>
@@ -7,24 +8,8 @@ class App extends React.Component<
   render() {
     return (
       <>
-        <div>
-          <a href="https://vite.dev" target="_blank" rel="noreferrer">
-            <img className="logo" alt="Vite logo" />
-          </a>
-          <a href="https://react.dev" target="_blank" rel="noreferrer">
-            <img className="logo react" alt="React logo" />
-          </a>
-        </div>
-        <h1>Vite + React</h1>
-        <div className="card">
-          <button onClick={() => console.log(`"123"`)}>count</button>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test HMR
-          </p>
-        </div>
-        <p className="read-the-docs">
-          Click on the Vite and React logos to learn more
-        </p>
+        <Header />
+        <Main />
       </>
     );
   }
