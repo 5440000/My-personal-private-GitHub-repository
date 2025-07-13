@@ -13,13 +13,15 @@ interface PokemonApiResponse {
   results: PokemonResult[];
 }
 
+interface MainProps {
+  searchTerm: string;
+}
+
 interface MainState {
   data: PokemonApiResponse | null;
   isLoading: boolean;
   error: string | null;
 }
-
-type MainProps = Record<string, never>;
 
 class Main extends React.Component<MainProps, MainState> {
   private loadingTimer: number | undefined;
@@ -34,7 +36,13 @@ class Main extends React.Component<MainProps, MainState> {
   }
 
   componentDidMount() {
-    this.fetchData('');
+    this.fetchData(this.props.searchTerm);
+  }
+
+  componentDidUpdate(prevProps: MainProps) {
+    if (this.props.searchTerm !== prevProps.searchTerm) {
+      this.fetchData(this.props.searchTerm);
+    }
   }
 
   componentWillUnmount() {
@@ -59,6 +67,11 @@ class Main extends React.Component<MainProps, MainState> {
       const response = await fetch(apiUrl);
 
       if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error(
+            `Pokemon "${searchTerm}" not found. Please try another name.`
+          );
+        }
         throw new Error(`Error: ${response.status} (${response.statusText})`);
       }
 
