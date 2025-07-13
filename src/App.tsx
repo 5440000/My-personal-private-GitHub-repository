@@ -1,6 +1,9 @@
 import React from 'react';
 
-class App extends React.Component<{}, {}> {
+class App extends React.Component<
+  Record<string, never>,
+  Record<string, never>
+> {
   render() {
     return (
       <>
